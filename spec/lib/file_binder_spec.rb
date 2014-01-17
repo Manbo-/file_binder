@@ -160,4 +160,16 @@ describe FileBinder do
       expect(@dummy.large).to have(1).items
     end
   end
+
+  context "when specify cache" do
+    before do
+      @dummy = Class.new(FileBinder) do
+        bind "spec/dummy"
+        cache "tmp/cache"
+      end
+    end
+
+    it_behaves_like "a file binder"
+
+  end
 end
