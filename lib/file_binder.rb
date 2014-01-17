@@ -45,7 +45,7 @@ class FileBinder
     end
 
     def reload
-      glob_entries.reject do |entry|
+      @entries = glob_entries.reject do |entry|
         if @extensions and !entry.directory?
           next true if entry.to_s !~ /\.#{Regexp.union(@extensions.map(&:to_s))}$/
         end
