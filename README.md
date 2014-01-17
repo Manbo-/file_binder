@@ -16,7 +16,7 @@
       pattern /video/
 
       command :large, ->(videos) do
-        videos.select{ |video| video.size > 999999 }
+        videos.select{ |video| !video.directory? and video.size > 999999 }
       end
     end
     

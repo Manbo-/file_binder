@@ -147,7 +147,7 @@ describe FileBinder do
       @dummy = Class.new(FileBinder) do
         bind "spec/dummy"
         command :large, ->(entries) do
-          entries.select{ |entry| entry.size > 0 }
+          entries.select{ |entry| !entry.directory? and entry.size > 0 }
         end
       end
     end
