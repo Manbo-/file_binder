@@ -18,6 +18,10 @@
       command :large, ->(videos) do
         videos.select{ |video| !video.directory? and video.size > 999999 }
       end
+
+      listen do |modified, added, removed|
+        ...
+      end
     end
     
     VideoBox.files

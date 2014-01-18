@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 shared_examples_for "a file binder" do
@@ -169,6 +170,20 @@ describe FileBinder do
           command :entries, ->(entries){}
         end
       }.to raise_error
+    end
+  end
+
+  context "when specify listen" do
+    let(:define!) do
+      Class.new(FileBinder) do
+        bind "spec/dummy"
+        listen {}
+      end
+    end
+
+    it do
+      expect_any_instance_of(Listen::Listener).to receive(:start)
+      define!
     end
   end
 end

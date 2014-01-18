@@ -1,21 +1,31 @@
 require "pathname"
+
+require "listen"
+
 require "file_binder/version"
 
 class FileBinder
   class << self
-    attr_reader :pathname
+    attr_reader :pathname, :listen
     
     def inherited(binder)
       binder.instance_variable_set(:@recursive, false)
+      binder.instance_variable_set(:@listen, false)
     end
 
     def bind(path)
-      @pathname = Pathname.new(path)
+      @pathname = Pathname.new(path).realpath
       raise "missing destination file operand" unless @pathname.exist?
     end
 
     def recursive(boolean)
       @recursive = !!boolean
+    end
+
+    # https://github.com/guard/listen
+    def listen(opts = {}, &callback)
+      @listen = Listen.to(@pathname.to_s, opts, &callback)
+      @listen.start
     end
 
     def extensions(*extensions)
