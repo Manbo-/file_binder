@@ -35,6 +35,7 @@ class FileBinder
     end
 
     def command(name, command)
+      raise "oh my god '#{name}'" if bad_singleton_method_name?(name)
       define_singleton_method name do
         command[entries]
       end
@@ -57,6 +58,10 @@ class FileBinder
     end
 
     private
+
+    def bad_singleton_method_name?(method_name)
+      singleton_methods.include?(method_name.to_sym)
+    end
 
     def glob_entries
       if @recursive

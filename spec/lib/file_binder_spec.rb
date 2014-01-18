@@ -160,4 +160,15 @@ describe FileBinder do
       expect(@dummy.large).to have(1).items
     end
   end
+
+  context "when specify bad name command" do
+    it do
+      expect{
+        Class.new(FileBinder) do
+          bind "spec/dummy"
+          command :entries, ->(entries){}
+        end
+      }.to raise_error
+    end
+  end
 end
