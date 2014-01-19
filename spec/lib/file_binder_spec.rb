@@ -173,17 +173,30 @@ describe FileBinder do
     end
   end
 
-  context "when specify listen" do
-    let(:define!) do
+  context "when specify listen callback" do
+    it do
+      callback = Proc.new do |changes|
+        changes
+      end
+      expect_any_instance_of(Listen::Listener).to receive(:start).once
       Class.new(FileBinder) do
         bind "spec/dummy"
-        listen {}
+        modified_on &callback
       end
     end
 
     it do
-      expect_any_instance_of(Listen::Listener).to receive(:start)
-      define!
+      callback = Proc.new do |changes|
+        changes
+      end
+      Class.new(FileBinder) do
+        bind "spec/dummy"
+        listen &callback
+      end
+      expect(callback).to receive(:call).once
+      `touch spec/dummy/change`
+      sleep 3                   # ...
+      `rm spec/dummy/change`
     end
   end
 end

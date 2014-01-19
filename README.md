@@ -19,8 +19,21 @@
         videos.select{ |video| !video.directory? and video.size > 999999 }
       end
 
-      listen do |modified, added, removed|
-        ...
+      # https://github.com/guard/listen      
+      listen force_polling: true, latency: 0.5 do |modified, added, removed|
+        reload
+      end
+    
+      modified_on do |changes|
+        ..
+      end
+
+      added_on do |changes|
+        ..
+      end
+
+      removed_on do |changes|
+        ..
       end
     end
     
