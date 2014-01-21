@@ -184,19 +184,5 @@ describe FileBinder do
         modified_on &callback
       end
     end
-
-    it do
-      callback = Proc.new do |changes|
-        changes
-      end
-      Class.new(FileBinder) do
-        bind "spec/dummy"
-        listen &callback
-      end
-      expect(callback).to receive(:call).once
-      `touch spec/dummy/change`
-      sleep 3                   # ...
-      `rm spec/dummy/change`
-    end
   end
 end
