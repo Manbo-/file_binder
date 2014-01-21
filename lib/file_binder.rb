@@ -3,6 +3,7 @@ require "pathname"
 require "forwardable"
 
 require "file_binder/listen"
+require "file_binder/extensions"
 require "file_binder/version"
 
 class FileBinder
