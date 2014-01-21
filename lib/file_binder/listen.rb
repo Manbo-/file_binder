@@ -3,7 +3,7 @@ class FileBinder
     CALLBACKS = %w(modified added removed)
 
     extend Forwardable
-    def_delegators :@listen, :start, :stop, :listen
+    def_delegators :@listen, :start, :stop, :listen?
 
     def initialize(pathname, opts = {}, &callback)
       @callback = callback || quiet_proc
