@@ -1,6 +1,7 @@
 require "listen"
 require "pathname"
 require "forwardable"
+require "yaml"
 
 require "file_binder/listen"
 require "file_binder/extensions"
@@ -55,6 +56,16 @@ class FileBinder
 
     def entries
       @entries ||= reload
+    end
+
+    def save(filename)
+      open(filename, "w") do |f|
+        f.write(YAML.dump(@entries))
+      end
+    end
+
+    def load(filename)
+      @entries = YAML.load_file(filename)
     end
 
     def reload

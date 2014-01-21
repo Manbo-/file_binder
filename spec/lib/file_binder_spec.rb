@@ -185,4 +185,56 @@ describe FileBinder do
       end
     end
   end
+
+  describe ".save" do
+    let(:filename) do
+      "spec/tmp"
+    end
+
+    before do
+      @dummy = Class.new(FileBinder) do
+        bind "spec/dummy"
+      end
+    end
+
+    it do
+      expect{ @dummy.save(filename) }.to change{ File.exist?(filename) }.from(false).to(true)
+    end
+
+    after do
+      FileUtils.rm(filename)
+    end
+  end
+
+  describe ".load" do
+    let(:filename) do
+      "spec/tmp"
+    end
+
+    before do
+      dummy = Class.new(FileBinder) do
+        bind "spec/dummy"
+      end
+      # cache
+      dummy.entries 
+      dummy.save(filename)
+
+
+      @dummy = Class.new(FileBinder) do
+        bind "spec/dummy"
+        recursive true
+      end
+
+      @from = @dummy.entries
+      @to = dummy.entries
+    end
+
+    it do
+      expect{ @dummy.load(filename) }.to change{ @dummy.entries }.from(@from).to(@to)
+    end
+    
+    after do
+      FileUtils.rm(filename)
+    end
+  end
 end
