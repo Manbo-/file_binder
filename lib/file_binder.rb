@@ -1,5 +1,6 @@
-require "pathname"
 require "listen"
+require "pathname"
+require "forwardable"
 
 require "file_binder/listen"
 require "file_binder/version"
@@ -7,10 +8,6 @@ require "file_binder/version"
 class FileBinder
   class << self
     attr_reader :pathname, :listener
-
-    def inherited(binder)
-      binder.instance_variable_set(:@recursive, false)
-    end
 
     def bind(path)
       @pathname = Pathname.new(path).realpath
@@ -60,7 +57,8 @@ class FileBinder
     end
 
     def reload
-      @entries = glob_entries.reject do |entry|
+      path = @pathname.realpath.to_s + (@recursive ? "/**/*" : "/*")
+      @entries = Pathname.glob(path).reject do |entry|
         if @extensions and !entry.directory?
           next true if entry.to_s !~ /\.#{Regexp.union(@extensions.map(&:to_s))}$/
         end
@@ -75,14 +73,6 @@ class FileBinder
 
     def bad_singleton_method_name?(method_name)
       singleton_methods.include?(method_name.to_sym)
-    end
-
-    def glob_entries
-      if @recursive
-        Pathname.glob("#{@pathname.realpath}/**/*")
-      else
-        Pathname.glob("#{@pathname.realpath}/*")
-      end
     end
   end
 end

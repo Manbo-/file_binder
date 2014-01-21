@@ -2,6 +2,9 @@ class FileBinder
   class Listener
     CALLBACKS = %w(modified added removed)
 
+    extend Forwardable
+    def_delegators :@listen, :start, :stop, :listen
+
     def initialize(pathname, opts = {}, &callback)
       @callback = callback || quiet_proc
       CALLBACKS.each do |callback|
@@ -23,14 +26,6 @@ class FileBinder
       define_method "#{name}_on" do |callback|
         instance_variable_set("@#{name}", callback)
       end
-    end
-
-    def listen?
-      @listen.listen?
-    end
-
-    def stop
-      @listen.stop
     end
 
     private
