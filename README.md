@@ -10,7 +10,7 @@
     require "file_binder"
     
     class VideoBox < FileBinder
-      bind "/path/to/video_dir"
+      bind "/path/to/video_dir1", "/path/to/video_dir2"
       recursive true # default false
       extensions :avi, :wmv, :flv
       pattern /video/

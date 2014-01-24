@@ -11,14 +11,21 @@ require "file_binder/version"
 
 class FileBinder
   class << self
-    attr_reader :pathname, :listener
+    attr_reader :pathnames, :listener
 
     extend Forwardable
     def_delegators :entries, :files, :directories
 
-    def bind(path)
-      @pathname = Pathname.new(path).realpath
-      raise "missing destination file operand" unless @pathname.exist?
+    def inherited(binder)
+      binder.instance_variable_set(:@pathnames, [])
+    end
+
+    def bind(*pathes)
+      pathes.each do |path|
+        pathname = Pathname.new(path)
+        raise "missing destination file operand" unless pathname.exist?
+        @pathnames << pathname.realpath
+      end
     end
 
     def recursive(boolean)
@@ -34,12 +41,12 @@ class FileBinder
     end
 
     def listen(opts = {}, &callback)
-      @listener = Listener.new(@pathname, opts, &callback)
+      @listener = Listener.new(@pathnames, opts, &callback)
     end
 
     Listener::CALLBACKS.each do |name|
       define_method "#{name}_on" do |&callback|
-        @listener ||= Listener.new(@pathname)
+        @listener ||= Listener.new(@pathnames)
         @listener.send("#{name}_on", callback)
       end
     end
@@ -49,7 +56,7 @@ class FileBinder
     end
 
     def reload
-      @entries = Collection.new(@pathname, @recursive, @extensions, @patterns)
+      @entries = Collection.new(@pathnames, @recursive, @extensions, @patterns)
     end
 
     def command(name, command)

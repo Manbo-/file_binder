@@ -5,13 +5,13 @@ class FileBinder
     extend Forwardable
     def_delegators :@listen, :start, :stop, :listen?
 
-    def initialize(pathname, opts = {}, &callback)
+    def initialize(pathnames, opts = {}, &callback)
       @callback = callback || quiet_proc
       CALLBACKS.each do |callback|
         instance_variable_set("@#{callback}", quiet_proc)
       end
 
-      @listen = ::Listen.to(pathname.to_s, opts) do |modified, added, removed|
+      @listen = ::Listen.to(*pathnames.map(&:to_s), opts) do |modified, added, removed|
         @callback.call(modified, added, removed)
         CALLBACKS.each do |name|
           callback = instance_variable_get("@#{name}")

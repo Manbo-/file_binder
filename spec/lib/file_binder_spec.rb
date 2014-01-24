@@ -2,9 +2,13 @@
 require 'spec_helper'
 
 shared_examples_for "a file binder" do
-  describe ".pathname" do
+  describe ".pathnames" do
     it do
-      expect(@dummy.pathname).to be_a_kind_of Pathname
+      expect(@dummy.pathnames).to be_a_kind_of Array
+    end
+
+    it do
+      expect(@dummy.pathnames.first).to be_a_kind_of Pathname
     end
   end
 
@@ -23,6 +27,26 @@ shared_examples_for "a file binder" do
   describe ".entries" do
     it do
       expect(@dummy.entries).to be_a_kind_of Array
+    end
+  end
+end
+
+shared_examples_for "a binding directory" do
+  describe ".files" do
+    it do
+      expect(@dummy.files).to have(3 + 3).items
+    end
+  end
+
+  describe ".directories" do
+    it do
+      expect(@dummy.directories).to have(1).items
+    end
+  end
+
+  describe ".entries" do
+    it do
+      expect(@dummy.entries).to have(7).items
     end
   end
 end
@@ -56,7 +80,7 @@ describe FileBinder do
     end
   end
 
-  context "when nonrecursive" do
+  context "when recursive" do
     before do
       @dummy = Class.new(FileBinder) do
         bind "spec/dummy"
@@ -65,24 +89,7 @@ describe FileBinder do
     end
 
     it_behaves_like "a file binder"
-
-    describe ".files" do
-      it do
-        expect(@dummy.files).to have(3 + 3).items
-      end
-    end
-
-    describe ".directories" do
-      it do
-        expect(@dummy.directories).to have(1).items
-      end
-    end
-
-    describe ".entries" do
-      it do
-        expect(@dummy.entries).to have(7).items
-      end
-    end
+    it_behaves_like "a binding directory"
   end
 
   context "when specify extensions" do
@@ -236,5 +243,16 @@ describe FileBinder do
     after do
       FileUtils.rm(filename)
     end
+  end
+
+  describe "when specify multiple binds" do
+    before do
+      @dummy = Class.new(FileBinder) do
+        bind "spec/dummy", "spec/dummy/directory"
+      end
+    end
+
+    it_behaves_like "a file binder"
+    it_behaves_like "a binding directory"
   end
 end

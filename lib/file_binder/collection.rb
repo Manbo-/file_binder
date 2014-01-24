@@ -1,17 +1,20 @@
 class FileBinder
   class Collection < Array
-    def initialize(pathname, recursive, extensions, patterns)
-      @pathname = pathname
-      entries = Pathname.glob(glob_path(recursive)).reject do |entry|
-        if extensions and !entry.directory?
-          next true if entry.to_s !~ /\.#{Regexp.union(extensions.map(&:to_s))}$/
-        end
-
-        if patterns
-          next true if entry.to_s !~ /#{Regexp.union(patterns)}/
+    def initialize(pathnames, recursive, extensions, patterns)
+      @pathnames = pathnames
+      entries = @pathnames.map do |pathname|
+        Pathname.glob(glob_path(pathname, recursive)).reject do |entry|
+          if extensions and !entry.directory?
+            next true if entry.to_s !~ /\.#{Regexp.union(extensions.map(&:to_s))}$/
+          end
+          
+          if patterns
+            next true if entry.to_s !~ /#{Regexp.union(patterns)}/
+          end
         end
       end
-      super(entries)
+
+      super(entries.flatten)
     end
 
     def files
@@ -39,8 +42,8 @@ class FileBinder
 
     private
 
-    def glob_path(recursive)
-      @pathname.realpath.to_s + (recursive ? "/**/*" : "/*")
+    def glob_path(pathname, recursive)
+      pathname.to_s + (recursive ? "/**/*" : "/*")
     end
   end
 end
