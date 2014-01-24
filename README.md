@@ -2,45 +2,49 @@
 [![Build Status](https://travis-ci.org/Manbo-/file_binder.png)](https://travis-ci.org/Manbo-/file_binder)
 
 ## Installation
-    $ git clone https://github.com/Manbo-/file_binder.git
-    $ cd ./file_binder
-    $ rake install
+```shell
+$ git clone https://github.com/Manbo-/file_binder.git
+$ cd ./file_binder
+$ rake install
+```
 
 ## Usage
-    require "file_binder"
-    
-    class VideoBox < FileBinder
-      bind "/path/to/video_dir1", "/path/to/video_dir2"
-      recursive true # default false
-      extensions :avi, :wmv, :flv
-      pattern /video/
+```ruby
+require "file_binder"
 
-      command :large, ->(videos) do
-        videos.select{ |video| !video.directory? and video.size > 999999 }
-      end
+class VideoBox < FileBinder
+  bind "/path/to/video_dir1", "/path/to/video_dir2"
+  recursive true # default false
+  extensions :avi, :wmv, :flv
+  pattern /video/
 
-      # https://github.com/guard/listen      
-      listen force_polling: true, latency: 0.5 do |modified, added, removed|
-        reload
-      end
-    
-      modified_on do |changes|
-        ..
-      end
+  command :large, ->(videos) do
+    videos.select{ |video| !video.directory? and video.size > 999999 }
+  end
 
-      added_on do |changes|
-        ..
-      end
+  # https://github.com/guard/listen      
+  listen force_polling: true, latency: 0.5 do |modified, added, removed|
+    reload
+  end
 
-      removed_on do |changes|
-        ..
-      end
-    end
-    
-    VideoBox.files
-    VideoBox.directories
-    VideoBox.entries
-    VideoBox.large
+  modified_on do |changes|
+    ..
+  end
+
+  added_on do |changes|
+    ..
+  end
+
+  removed_on do |changes|
+    ..
+  end
+end
+
+VideoBox.files
+VideoBox.directories
+VideoBox.entries
+VideoBox.large
+```
 
 ## Contributing
 
