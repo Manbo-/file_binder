@@ -3,13 +3,18 @@ require "pathname"
 require "forwardable"
 require "yaml"
 
+require "file_binder/collection"
 require "file_binder/listen"
+require "file_binder/save"
 require "file_binder/extensions"
 require "file_binder/version"
 
 class FileBinder
   class << self
     attr_reader :pathname, :listener
+
+    extend Forwardable
+    def_delegators :entries, :files, :directories
 
     def bind(path)
       @pathname = Pathname.new(path).realpath
@@ -24,6 +29,10 @@ class FileBinder
       @extensions = extensions
     end
 
+    def pattern(*patterns)
+      @patterns = patterns
+    end
+
     def listen(opts = {}, &callback)
       @listener = Listener.new(@pathname, opts, &callback)
     end
@@ -35,16 +44,12 @@ class FileBinder
       end
     end
 
-    def pattern(*patterns)
-      @patterns = patterns
+    def entries
+      @entries ||= reload
     end
 
-    def files
-      entries.reject(&:directory?)
-    end
-
-    def directories
-      entries.select(&:directory?)
+    def reload
+      @entries = Collection.new(@pathname, @recursive, @extensions, @patterns)
     end
 
     def command(name, command)
@@ -54,32 +59,7 @@ class FileBinder
       end
     end
 
-    def entries
-      @entries ||= reload
-    end
-
-    def save(filename)
-      open(filename, "w") do |f|
-        f.write(YAML.dump(@entries))
-      end
-    end
-
-    def load(filename)
-      @entries = YAML.load_file(filename)
-    end
-
-    def reload
-      path = @pathname.realpath.to_s + (@recursive ? "/**/*" : "/*")
-      @entries = Pathname.glob(path).reject do |entry|
-        if @extensions and !entry.directory?
-          next true if entry.to_s !~ /\.#{Regexp.union(@extensions.map(&:to_s))}$/
-        end
-
-        if @patterns
-          next true if entry.to_s !~ /#{Regexp.union(@patterns)}/
-        end
-      end
-    end
+    include FileBinder::Save
 
     private
 
